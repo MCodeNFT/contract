@@ -16,9 +16,22 @@ contract MLoot is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
 
     uint256 public constant maxSupply = 10000;
     uint256 private _reserved = 500;
-    uint256 private maxClaimCount = 5;
+    uint256 private maxClaimCount = 3;
+    bool private _saleStarted = false;
 
-    function setClaimCount(uint256 cnt) external onlyOwner {
+    modifier saleStarted() {
+        require(_saleStarted);
+        _;
+    }
+
+    function toggleStatus() external onlyOwner {
+        _saleStarted = !_saleStarted;
+    }
+
+    function setMintPrice(uint256 price) external onlyOwner {
+        mintPrice = price;
+    }
+    function setMaxClaimCount(uint256 cnt) external onlyOwner {
         maxClaimCount = cnt;
     }
 
@@ -36,7 +49,7 @@ contract MLoot is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
     }
 
     // mint from website
-    function mint(uint256 _nTokens) public payable nonReentrant {
+    function mint(uint256 _nTokens) public payable nonReentrant saleStarted {
         uint256 supply = totalSupply();
         require(_nTokens < 21, "You cannot mint more than 20 Tokens at once!");
         require(supply + _nTokens <= maxSupply - _reserved, "Not enough Tokens left.");
@@ -47,7 +60,7 @@ contract MLoot is ERC721, ERC721Enumerable, Ownable, ReentrancyGuard {
         }
     }
 
-    function claim() public nonReentrant returns (uint256) {
+    function claim() public nonReentrant saleStarted returns (uint256) {
         uint256 supply = totalSupply();
         require(balanceOf(_msgSender()) < maxClaimCount, "One account can not claim more than 3 mloots");
         require(supply + _reserved < maxSupply, "MLoots have been sold out.");
