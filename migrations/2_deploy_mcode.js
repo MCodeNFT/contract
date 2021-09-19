@@ -1,6 +1,6 @@
-const MLootContract = artifacts.require("MLoot");
+const MCodeContract = artifacts.require("MCode");
 
 module.exports = async function (deployer, network, accounts) {
     // deployment steps
-    await deployer.deploy(MLootContract);
+    await deployer.deploy(MCodeContract);
 };
